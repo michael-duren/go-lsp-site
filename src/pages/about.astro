@@ -8,11 +8,33 @@ import Layout from "../layouts/BlogPost.astro";
   pubDate={new Date("August 08 2021")}
   heroImage="/blog-placeholder-about.jpg"
 >
+  <h1 class="text-4xl mb-8">About Me</h1>
+  <p>Hi,</p>
   <p>
-    Motivated and detail-oriented software engineer specializing in C# .NET,
-    SQL, Typescript, HTML and CSS. Avid debugger and problem-solver with
-    excellent communication skills and a knack for collaboration. Makes
-    electronic music in his free time. Loves old synthesizers and modern jazz.
-    Neovim enthusiast. Currently learning Go and C.
+    I am a motivated and detail-oriented software engineer specializing in C#
+    .NET, SQL, Typescript, HTML and CSS. Avid debugger and problem-solver with
+    excellent communication skills and a knack for collaboration. I make
+    electronic music in my free time. Love old synthesizers and modern jazz.
+    Neovim enthusiast.
   </p>
+  <p>Currently learning Go and C.</p>
+
+  <div class="social-links">
+    <a
+      href="https://github.com/michael-duren"
+      class="text-gray-950"
+      target="_blank"
+    >
+      <span class="sr-only">Go to Michael Durens GitHub repo</span>
+      <i class="devicon-github-original text-2xl"></i>
+    </a>
+    <a
+      href="https://linkedin.com/in/michael-duren"
+      class="text-gray-950"
+      target="_blank"
+    >
+      <span class="sr-only">Go to Michael Durens Linkedin</span>
+      <i class="devicon-linkedin-plain text-2xl"></i>
+    </a>
+  </div>
 </Layout>
