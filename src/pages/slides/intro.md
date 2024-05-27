@@ -1,6 +1,7 @@
 ---
 title: "Introduction to Language Server Protocol (LSP)"
 author: "Michael Duren"
+layout: "../../layouts/BlogPost.astro"
 ---
 
 # Introduction
