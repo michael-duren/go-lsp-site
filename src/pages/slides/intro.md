@@ -1,8 +1,14 @@
-# What is a LSP?
+---
+title: "Introduction to Language Server Protocol (LSP)"
+author: "Michael Duren"
+---
 
-## Definition from Microsofts the offical LSP website
+# Introduction
 
-> What is the Language Server Protocol?
+## What is LSP?
+
+From the official [LSP website](https://microsoft.github.io/language-server-protocol/):
+
 > Adding features like auto complete, go to definition, or documentation on hover for a programming language takes significant effort. Traditionally this work had to be repeated for each development tool, as each tool provides different APIs for implementing the same feature.
 >
 > A Language Server is meant to provide the language-specific smarts and communicate with development tools over a protocol that enables inter-process communication.
