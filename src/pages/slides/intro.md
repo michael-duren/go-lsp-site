@@ -6,6 +6,21 @@ layout: "../../layouts/BlogPost.astro"
 
 # Introduction
 
+<hr>
+<br>
+
+## Presentation Site to follow along
+
+<br>
+<div>
+<a class="text-4xl text-indigo-700" href="https://go-lsp.michaelduren.com/">
+    https://go-lsp.michaelduren.com/
+</a>
+</div>
+
+<br>
+<br>
+
 ## What is LSP?
 
 From the official [LSP website](https://microsoft.github.io/language-server-protocol/):
