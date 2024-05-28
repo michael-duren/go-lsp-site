@@ -2,6 +2,41 @@
 import BaseHead from "../components/BaseHead.astro";
 import Header from "../components/Header.astro";
 import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+
+type Link = {
+  href: string;
+  title: string;
+};
+const tableOfContents: Link[] = [
+  { href: "/slides/intro", title: "Introduction" },
+  { href: "/slides/lsp-spec", title: "LSP Spec" },
+  { href: "/slides/implement-in-go", title: "Implement in Go" },
+  { href: "/slides/dap", title: "DAP" },
+  { href: "/slides/automation", title: "Automation" },
+];
+
+const helpfulLinks: Link[] = [
+  {
+    href: "https://github.com/golang/tools/tree/master/gopls",
+    title: "Go Official LSP Repository",
+  },
+  {
+    href: "https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/",
+    title: "Official LSP Microsoft Spec",
+  },
+  {
+    href: "https://microsoft.github.io/debug-adapter-protocol//specification.html",
+    title: "Official DAP Microsoft Spec",
+  },
+  {
+    href: "https://code.visualstudio.com/api/working-with-extensions/publishing-extension",
+    title: "VS Code Extension Publish Docs",
+  },
+  {
+    href: "https://neovim.io/doc/user/lsp.html",
+    title: "Neo Vim LSP Docs",
+  },
+];
 ---
 
 <!doctype html>
@@ -12,30 +47,50 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
   <body class="h-[80vh] lg:h-[75vh]">
     <Header />
     <main
-      class="flex h-full flex-col md:flex-row gap-8 lg:gap-0 w-full items-center justify-center max-w-screen-lg"
+      class="flex flex-col items-center justify-center h-full w-full gap-8 p-8"
     >
-      <div class="flex flex-col gap-4 flex-1 items-center w-full">
-        <div>
-          <h1 class="text-4xl font-bold mb-4">Table of Contents</h1>
-          <ul class="flex flex-col gap-2">
-            <li>
-              <a href="/slides/intro"> Introduction </a>
-            </li>
-            <li><a href="/slides/lsp-spec">LSP Spec </a></li>
-            <li>
-              <a href="/slides/implement-in-go"> Implement in Go </a>
-            </li>
-            <li><a href="/slides/dap"> DAP </a></li>
-            <li><a href="/slides/automation"> Automation </a></li>
-          </ul>
+      <div
+        class="flex h-full flex-col md:flex-row gap-8 lg:gap-0 w-1/2 items-center justify-center max-w-screen-lg"
+      >
+        <div class="flex flex-col gap-4 flex-1 items-center w-full">
+          <div>
+            <h1 class="text-4xl font-bold mb-4">Table of Contents</h1>
+            <ul class="flex flex-col gap-2">
+              {
+                tableOfContents.map((link) => {
+                  return (
+                    <li>
+                      <a href=`${link.href}`>{link.title}</a>
+                    </li>
+                  );
+                })
+              }
+            </ul>
+          </div>
+        </div>
+        <div class="flex items-center justify-center">
+          <img
+            src="/go-gopher-svgrepo-com.svg"
+            class="h-72 w-72 hover:scale-110 transition-transform animate-bounce duration-500 ease-in-out cursor-pointer"
+            alt="Go Gopher"
+          />
         </div>
       </div>
-      <div class="flex items-center justify-center">
-        <img
-          src="/go-gopher-svgrepo-com.svg"
-          class="h-72 w-72 hover:scale-110 transition-transform animate-bounce duration-500 ease-in-out cursor-pointer"
-          alt="Go Gopher"
-        />
+      <div class="w-1/2">
+        <h2 class="text-2xl">Helpful Links</h2>
+        <ul class="flex flex-wrap gap-x-10 list-disc">
+          {
+            helpfulLinks.map((link) => {
+              return (
+                <li>
+                  <a target="_blank" href=`${link.href}`>
+                    {link.title}
+                  </a>
+                </li>
+              );
+            })
+          }
+        </ul>
       </div>
     </main>
   </body>
