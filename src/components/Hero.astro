@@ -1,0 +1,53 @@
+---
+import type { Link } from "../types";
+import { Card } from "@astrojs/starlight/components";
+
+const helpfulLinks: Link[] = [
+    {
+        href: "https://github.com/golang/tools/tree/master/gopls",
+        title: "Go Official LSP Repository",
+    },
+    {
+        href: "https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/",
+        title: "Official LSP Microsoft Spec",
+    },
+    {
+        href: "https://microsoft.github.io/debug-adapter-protocol//specification.html",
+        title: "Official DAP Microsoft Spec",
+    },
+    {
+        href: "https://code.visualstudio.com/api/working-with-extensions/publishing-extension",
+        title: "VS Code Extension Publish Docs",
+    },
+    {
+        href: "https://neovim.io/doc/user/lsp.html",
+        title: "Neo Vim LSP Docs",
+    },
+];
+---
+
+<div class="w-full">
+    <Card title="Helpful Links" icon="information" >
+        <div class="flex justify-between w-full">
+            <ul class="">
+            {
+                helpfulLinks.map((link) => {
+                return (
+                    <li>
+                        <a target="_blank" href=`${link.href}`>
+                            {link.title}
+                        </a>
+                    </li>
+                );
+                })
+            }
+            </ul>
+
+            <img
+                src="/go-gopher-svgrepo-com.svg"
+                class="h-48 w-48 hover:scale-110 transition-transform animate-bounce duration-500 ease-in-out cursor-pointer"
+                alt="Go Gopher"
+            />
+        </div>
+    </Card>
+</div>
