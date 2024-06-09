@@ -26,15 +26,38 @@ export default defineConfig({
           ],
         },
         {
-          label: "Contents",
+          label: "Go lang Implementation",
           items: [
             // Each item here is one entry in the navigation menu.
-            { label: "Example Guide", link: "/guides/example/" },
+            { label: "Project Setup", link: "/implementation/project-setup" },
+            {
+              label: "Hooking up our LSP to Neovim",
+              link: "/implementation/editor-hookup-neovim",
+            },
+            {
+              label: "Hooking up our LSP to VS Code",
+              link: "/implementation/editor-hookup-vs-code",
+            },
+            {
+              label: "Implementing Hover",
+              link: "/implementation/hover",
+            },
+            {
+              label: "Spell Check in Markdown files",
+              link: "/implementation/spell-check",
+            },
           ],
         },
         {
-          label: "Reference",
-          autogenerate: { directory: "reference" },
+          label: "DAP",
+          items: [
+            { label: "Debug Adapter Protocol", link: "/dap/dap-intro" },
+            { label: "DAP Spec", link: "/dap/dap-spec" },
+          ],
+        },
+        {
+          label: "Extras",
+          items: [{ label: "Automation", link: "/extras/automation" }],
         },
       ],
     }),

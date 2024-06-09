@@ -1,0 +1,68 @@
+---
+title: LSP Specification
+description: A high level overview of the LSP Specification.
+---
+import { Card } from "@astrojs/starlight/components";
+
+<Card title="Language Server Protocol" icon="information">
+  Microsoft has great documentation on the LSP specifications.
+  > You can check out the full docks here: [LSP Docs](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/)
+</Card>
+
+<Card title="High Level Overview" icon="rocket">
+  For web developers who write restful APIs, or work with JSON in general this specification will seem very familiar.
+  The LSP is a JSON-RPC based protocol that allows developers to write language servers that can communicate with a wide variety of editors and IDEs (the client).
+  It follows the simple request/response pattern that is common in web development.
+</Card>
+
+## Request/Response Pattern
+
+  Each request and response has two parts a header and content which are seperated by a `\r\n`.
+  The header simply describes the content length and the content type, content-type defaulting to `application/vscode-jsonrpc; charset=utf-8`, so for our purposes only `Content-Length` is required.
+  The request content is a JSON object that contains four main fields: 
+
+  1. `jsonrpc` - the version of the protocol (we'll be using 2.0)
+
+  2. `method`  - the method that is being called by the client for example this `'textDocument/definition'` to go to a object or functions definiton in your IDE/editor.
+
+  3. `params` - the parameters that are passed with that method, each method has it's own set of parameters that are necessary for each call to work.
+
+  4. `id` - the id of the request, this is used to match the response to the request.
+
+:::note
+
+**Example (taken from the LSP docs):**
+  ```json
+Content-Length: ...\r\n
+\r\n
+{
+	"jsonrpc": "2.0",
+	"id": 1,
+	"method": "textDocument/completion",
+	"params": {
+		...
+	}
+}
+```
+:::
+
+For a response the content is very similar but with a few key differences: rather than a method and parameters, a result or error field is returned.
+The response of course includes the id of the request.
+
+**There are a couple of other message types.**
+
+<ul>
+  <li class="list-disc">
+  Notification messages which are similar to requests but do not require a response, they work like events.
+  </li>
+  <li class="list-disc">
+  Notificaton and requests whose methods start with '$/' are messages which might not be supported by all clients or servers.
+  </li>
+  <li class="list-disc">
+    Finally there are cancellation and progress support, which www will not be covering in this guide.
+  </li>
+</ul>
+
+## Server Capabilities
+
+## Lifecycle Messages
