@@ -65,4 +65,24 @@ The response of course includes the id of the request.
 
 ## Server Capabilities
 
+Capabilites communicate between the client and server what features are supported.
+Both client and server capabilities are sent as part of the `initialize` request, we won't be too worried about the client 
+capabilities in this guide but the server capabilities are important.
+
 ## Lifecycle Messages
+
+The client in the LSP spec is doing more than just requesting information, it is also responsible for starting and stopping the server.
+There are a couple of lifecycle messages that are used for this purpose.
+
+<ul>
+  <li class="list-disc">
+        **Initialize && Initialized** - This message is sent from the client which includes the clients capabilities previously mentioned.
+        The client will not send any other messages until it receives a response from the server, this is the initial handshake.
+  </li>
+  <li class="list-disc">
+    **Register & Unregister** - These messages are used to register and unregister capabilities with the server.
+  </li>
+  <li class="list-disc">
+        **Shutdown & Exit** - These messages are used to stop the server.
+  </li>
+</ul>
