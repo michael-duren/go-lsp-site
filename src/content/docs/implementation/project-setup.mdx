@@ -2,3 +2,116 @@
 title: Project Setup
 description: Setting up our LSP project.
 ---
+import { FileTree, Code, Aside } from '@astrojs/starlight/components';
+
+export const mainCodeSetup = `
+package main
+
+import (
+	"fmt"
+	"log"
+	"os"
+	"path/filepath"
+	"time"
+)
+
+func main() {
+	logger := getLogger(nil)
+	logger.Println("Hey buddy, I started")
+}
+
+func getLogger(filename *string) *log.Logger {
+	cwd, err := os.Getwd()
+	if err != nil {
+		panic("Could not get the current working directory")
+	}
+	if filename == nil {
+		name := fmt.Sprintf("log_%s.log", time.Now().Format("2006-01-02"))
+		filename = &name
+	}
+	log_path := filepath.Join(cwd, "logs", *filename)
+	// make logs directory if it doesn't exist
+	// check if the directory exists
+	if _, err := os.Stat("logs"); os.IsNotExist(err) {
+		// create the directory
+		err := os.Mkdir("logs", os.ModePerm)
+		if err != nil {
+			panic("Could not create the logs directory")
+		}
+	}
+
+	logFile, err := os.OpenFile(log_path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0666)
+	if err != nil {
+		panic("hey, you didn't give a good file bozzo")
+	}
+
+	return log.New(logFile, "[demo_lsp]", log.Ldate|log.Ltime|log.Lshortfile)
+}
+`;
+
+<Aside type="danger" title="Heads up!">
+    I have only been programming with go lang for a couple months now.
+    I focus primarily on C#, SQL, and TS at work, so if there are any mistakes, industry standards, best practices, etc. with go lang that I miss please let me know so I can improve.
+</Aside>
+
+## Now for the fun part!
+
+One of the great things about go lang, is that setting up a project can be literally as easy as the commands below:
+```bash
+mkdir demo_lsp && cd demo_lsp
+go mod init demo_lsp && touch main.go
+```
+We don't need a crazy amount of files to get started, just a `main.go` file and a `go.mod` file.
+
+<FileTree>
+
+- go.mod
+- main.go
+
+</FileTree>
+
+For starter we'll add a simple logger to our `main.go` file so that we can see the requests and responses that are executed.
+
+<Code lang="go" code={mainCodeSetup} title={"main.go"} />
+
+We can go ahead and run our project using the command below:
+```bash
+go run main.go
+```
+
+We should see a directory called `logs` created in the root of our project with a log file inside it.
+
+
+<FileTree>
+
+- go.mod
+- main.go
+- logs
+    - log_2024-06-01.log
+
+</FileTree>
+
+## Encoding and Decoding Messages
+
+Now we have a simple logger setup, we can start to work on encoding and decoding messages.
+We know from the LSP overview and documentation that a message just has two parts a header and a body, that may look someting like this:
+
+```json
+Content-Length: 67
+{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "initialize",
+    "params": {
+        "processId": 1234,
+        "rootPath": "/some/path"
+    }
+}
+```
+
+So lets go ahead and create a package to handle this.
+
+```bash
+mkdir rpc  && touch rpc/rpc.go
+```
+
