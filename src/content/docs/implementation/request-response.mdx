@@ -1,0 +1,103 @@
+---
+title: Request and Response Encoding
+description: Creating a listener, and encoding and decoding messages.
+---
+
+Now we have a simple logger setup, we can start to work on encoding and decoding messages.
+
+## Creating a Listener
+
+We need our LSP to be listening to stdin and writing to stdout to commnicate with the client.
+Go conviently provides a `bufio` package that we can use to create our listener. Lets create a new package called RPC to handle the listener and encoding and decoding of messages.
+
+```bash
+mkdir rpc && touch rpc/listener.go
+```
+
+And in the listener.go file we can add the function to create a scanner.
+```go
+package rpc
+
+import "bufio"
+
+
+func CreateScanner() *bufio.Scanner {
+
+}
+```
+Next add the scanner with a reader of `os.Stdin`. We can also define our own split function so that we can seperate each message by the `Content-Length` header.
+```go
+func CreateScanner() *bufio.Scanner {
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Split(SplitMessage)
+	return scanner
+}
+```
+
+The `SplitMessage` function will look something like this:
+```go
+func SplitMessage(data []byte, atEOF bool) (advance int, token []byte, err error) {
+	// look for the seperator between header and content
+	header, content, found := bytes.Cut(data, []byte{'\r', '\n', '\r', '\n'})
+
+	if !found {
+		return 0, nil, nil
+	}
+
+	// get the content-length
+	contentLengthBytes := header[len("Content-Length: "):]
+	// parse to int
+	contentLength, err := strconv.Atoi(string(contentLengthBytes))
+	if err != nil {
+		return 0, nil, err
+	}
+
+	if len(content) < contentLength {
+		return 0, nil, nil // missing content
+	}
+
+	totalLength := len(header) + contentLength + 4
+
+	return totalLength, data[:totalLength], nil
+}
+```
+
+We're taking in the current data, splitting the bytes by our seperator, determining the content length of 
+the current message and if all goes well returning our full message and telling the reader to advance the length of the message in bytes.
+
+
+## Encoding and Decoding Messages
+
+Alright we have a scanner, but we still need to be able to encode and decode the `[]byte`.
+
+We'll start with perhaps the simpler of the two, encoding a message.
+Let's create a new file in the rpc package called `operations.go`.
+
+```bash
+touch rpc/operations.go
+```
+
+```go
+package rpc
+
+import (
+	"encoding/json"
+	"fmt"
+)
+
+func EncodeMsg(msg any) string {
+	content, err := json.Marshal(msg)
+	if err != nil {
+		panic("UNABLE TO ENCODE MSG")
+	}
+
+	return fmt.Sprint("Content-Length: %d\r\n\r\n%s", len(content), content)
+}
+```
+
+A quick, easy function to write, next we'll create the decode function.
+```go
+func DecodeMsg(data []byte) (method string, []byte data, err error) {
+
+}
+```

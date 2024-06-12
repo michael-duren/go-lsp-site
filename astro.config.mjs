@@ -31,6 +31,10 @@ export default defineConfig({
             // Each item here is one entry in the navigation menu.
             { label: "Project Setup", link: "/implementation/project-setup" },
             {
+              label: "Implementing the Request/Response pattern",
+              link: "/implementation/request-response",
+            },
+            {
               label: "Hooking up our LSP to Neovim",
               link: "/implementation/editor-hookup-neovim",
             },
