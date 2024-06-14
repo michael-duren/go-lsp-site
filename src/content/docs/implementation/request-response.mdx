@@ -96,7 +96,31 @@ func EncodeMsg(msg any) string {
 
 A quick, easy function to write, next we'll create the decode function.
 ```go
-func DecodeMsg(data []byte) (method string, []byte data, err error) {
+// Goal of this function is to just determine the method of the message,
+// if it's a valid message and return the content of the message
+// This way we can unmarshall the content of the message into the correct struct
+func DecodeMsg(msg []byte) (string, []byte, error) {
+	// Takes a message and decodes to a struct
+	header, content, found := bytes.Cut(msg, []byte{'\r', '\n', '\r', '\n'})
 
+	if !found {
+		return "", nil, errors.New("Header not found")
+	}
+
+	// Parse the header
+	contentLengthStr := header[len("Content-Length: "):]
+	contentLength, err := strconv.Atoi(string(contentLengthStr))
+	if err != nil {
+		return "", nil, err
+	}
+
+	// Determine the method
+	var baseMessage lsp.BaseMessage
+
+	if err := json.Unmarshal(content[:contentLength], &baseMessage); err != nil {
+		return "", nil, err
+	}
+
+	return baseMessage.Method, content[contentLength:], nil
 }
 ```
