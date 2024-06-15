@@ -3,6 +3,8 @@ title: Request and Response Encoding
 description: Creating a listener, and encoding and decoding messages.
 ---
 
+import { Aside } from '@astrojs/starlight/components';
+
 Now we have a simple logger setup, we can start to work on encoding and decoding messages.
 
 ## Creating a Listener
@@ -124,3 +126,115 @@ func DecodeMsg(msg []byte) (string, []byte, error) {
 	return baseMessage.Method, content[contentLength:], nil
 }
 ```
+
+## Testing our operations
+
+Before continuing, lets do a quick sanity test and make sure our operations are working as expected.
+
+```bash
+touch rpc/operations_test.go
+```
+
+```go
+package rpc_test
+
+import (
+	"demo_lsp/rpc"
+	"fmt"
+	"testing"
+)
+
+type SomeMessage struct {
+	MessageName string `json:"messageName"`
+}
+
+func TestEncodeMsg(t *testing.T) {
+	expected := "Content-Length: 22\r\n\r\n{\"messageName\":\"test\"}"
+	actual := rpc.EncodeMsg(SomeMessage{MessageName: "test"})
+
+	if expected != actual {
+		t.Fatalf("TestEncodeMsg did not properly encode expected: %s actual: %s", expected, actual)
+	}
+}
+
+func TestDecodeMsg(t *testing.T) {
+	// arrange
+	testContent := "{\"method\":\"someMethod\"}"
+	testMessage := fmt.Sprintf("Content-Length: 23\r\n\r\n%s", testContent)
+
+	// act
+	method, content, err := rpc.DecodeMsg([]byte(testMessage))
+	// assert
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if method != "someMethod" {
+		t.Fatalf("Method: %s did not equal \"someMethod\"", method)
+	}
+
+	if string(content) != testContent {
+		t.Fatalf("Content: %s did not equal testContent: %s", content, testContent)
+	}
+}
+```
+```bash
+go test rpc/operations_test.go
+```
+
+Hopefully the testing gods have looked favorably upon us with a passing test: `ok      command-line-arguments  0.264s`
+
+## Tying it all together
+
+Lets piece our rpc implementation together in our main function.
+
+```go title="main.go"  ins={4,16-23, 26-38}
+package main
+
+import (
+	"demo_lsp/rpc"
+	"fmt"
+	"log"
+	"os"
+	"path/filepath"
+	"time"
+)
+
+func main() {
+	logger := getLogger(nil)
+	logger.Println("Hey buddy, I started")
+
+	// Setup scanner
+	scanner := rpc.CreateScanner()
+
+	for scanner.Scan() {
+		// Listener loop
+		msg := scanner.Bytes()
+		handleMessage(msg, logger)
+	}
+}
+
+func handleMessage(msg []byte, logger *log.Logger) {
+	method, content, err := rpc.DecodeMsg(msg)
+	if err != nil {
+		logger.Printf("In \"handleMessage\" Error decoding message: %s \n", err)
+		return
+	}
+
+	switch method {
+	case "initialize":
+		logger.Println("initialize")
+		logger.Printf("Content: %s\n", content)
+	}
+}
+
+...
+```
+
+Pretty simple we have a handleMessage function that will decode the message and then switch on the method to determine what to do with the message.
+Next for the exciting part of making contact with our editor 👽.
+
+<Aside>
+    I use and prefer neovim, so I will continue with setting up neovim with our LSP but I have included a VS Code setup as well.
+    Neovim allows me to move a bit faster than the VS Code version so I feel it is better for demonstration purposes.
+</Aside>
