@@ -2,3 +2,51 @@
 title: Hooking up our LSP to Neovim 
 description: Hooking up our LSP to the editor
 ---
+
+Its time to talk to hook up our editor!
+For this rather than use something like lsp-config, I'm going to create an auto command that will hook up our LSP server to our editor
+once a markdown file is opened.
+
+```lua
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "markdown",
+  callback = function()
+    vim.lsp.start({
+      name = "markdown-awesome-server",
+      cmd = { "/Users/michaelduren/Code/learning/go-meetups/demo-proj/demo_lsp" },
+    })
+  end,
+})
+```
+
+We can give it any name we like, we just need to assign the absolute path of where our binary is located, and we can start the server.
+Typically we would have a `/bin/` folder nested perhaps somewhere in our home directory where we would store our binaries, but for development it's nice to have it in the project directory.
+
+
+## Startup
+
+**Next, simply exit vim.**
+
+![Exiting Vim](../../../assets/exit-vim.jpg)
+
+Create a markdown file (I have neovim aliased to vim)
+
+```bash
+touch test.md && vim test.md
+```
+
+You can add some contents if you would like, but that's it lets go check our logs in our project!
+
+About four lines in after "initialize" we should see a huge json blob.
+In here we have a lot of information about the capabilities of our server, and the client.
+Towards the bottom we have information about our client specifically we should see our old friend neovim!
+
+```json
+    "clientInfo": {
+      "version": "0.10.0-dev",
+      "name": "Neovim"
+    },
+```
+
+🎉 Congratulations! You have successfully hooked up your LSP server to your editor!
+Moving forward everytime we open a markdown file with our editor, our LSP server will start up and we can start sending requests to it! 
