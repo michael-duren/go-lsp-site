@@ -70,7 +70,39 @@ the current message and if all goes well returning our full message and telling 
 
 ## Encoding and Decoding Messages
 
-Alright we have a scanner, but we still need to be able to encode and decode the `[]byte`.
+Before we can start to decode messages we need to know what the messages will look like.
+As discussed in the LSP specification, messages will be in the form of JSON objects with a `method` key.
+
+So lets create some basic types to represent the messages.
+```bash
+mkdir lsp && touch lsp/message.go
+```
+```go title="lsp/message.go"
+package lsp
+
+type BaseMessage struct {
+	Method string `json:"method"`
+}
+
+type Request struct {
+	Id      *int   `json:"id,omitempty"`
+	Jsonrpc string `json:"jsonrpc"`
+	Method  string `json:"method"`
+	// we will add the params when we implement
+}
+
+type Response struct {
+	Id      *int   `json:"id,omitempty"`
+	Jsonrpc string `json:"jsonrpc"`
+	// we will either have a result or an error when we implement
+}
+
+type Notification struct {
+	Method string `json:"method"`
+}
+```
+
+Alright we have a scanner and some types, but we still need to be able to encode and decode the `[]byte`.
 
 We'll start with perhaps the simpler of the two, encoding a message.
 Let's create a new file in the rpc package called `operations.go`.

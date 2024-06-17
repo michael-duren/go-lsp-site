@@ -1,0 +1,119 @@
+---
+title: The Handshake
+description: Agreeing on capabilities and protocols.
+---
+
+So great, we've got a connection, well partial connection. We've received a message from our editor but we haven't yet agreed on what we're going to do with it.
+We need to agree on what capabilities we both have and what protocols we're going to use to communicate.
+
+This is not called the handshake specifically I just liked that for a title for this part.
+Anyway, we've received a message and logged it, but now we need to first decode it and then respond.
+
+## Creating the Initialize Types
+
+In order to this we'll make a simplified struct representing the message and then we'll implement the decoding and encoding for it.
+Let's checkout the docs for the structure of the [Initialize Request](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#initialize).
+If we scroll down to the `InitializeParams` we can see that it has a decent amount of information, for our purposes we don't need all of it.
+We'll make a couple structs to grab what we want from this.
+
+```bash
+touch lpc/initialize.go
+```
+
+```go title="lpc/initialize.go"
+package lsp
+
+type Initialize struct {
+	Request
+	Params InitializeParams `json:"params"`
+}
+
+type InitializeParams struct {
+	ClientInfo ClientInfo `json:"clientInfo"`
+}
+
+type ClientInfo struct {
+	Name    string `json:"name"`
+	Version string `json:"version"`
+}
+```
+
+Next let's make some types to represent the Initialize Result to complete the handshake.
+Following the same strategy we can checkout the docs for the [Initialize Response](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#initializeResult)
+and create the structs to represent the response.
+
+```go title="lpc/initialize.go" ins={5-44}
+
+package lsp
+
+... previous code ...
+
+type InitializeResponse struct {
+	// this is the first message that the server sends to the client
+	Response
+	Result InitializeResult `json:"result"`
+}
+
+type InitializeResult struct {
+	ServerInfo   ServerInfo         `json:"serverInfo"`
+	Capabilities ServerCapabilities `json:"capabilities"`
+}
+
+type ServerCapabilities struct {
+	TextDocumentSync   int  `json:"textDocumentSync"`
+	HoverProvider      bool `json:"hoverProvider"`
+	DefinitionProvider bool `json:"definitionProvider"`
+	CodeActionProvider bool `json:"codeActionProvider"`
+}
+
+type ServerInfo struct {
+	Name    string `json:"name"`
+	Version string `json:"version"`
+}
+
+func NewInitializeResponse(id int) InitializeResponse {
+	return InitializeResponse{
+		Response: Response{
+			Id: &id,
+			Message: Message{
+				Jsonrpc: "2.0",
+			},
+		},
+		Result: InitializeResult{
+			Capabilities: ServerCapabilities{}, // what we're able to do
+			ServerInfo: ServerInfo{
+				Name:    "demo_lsp",
+				Version: "0.0.0.0",
+			},
+		},
+	}
+}
+```
+
+## Decoding the Initialize Request
+
+With our types in place, our operation functions ready to fire, lets decode the message and respond.
+
+First, decoding we can remove the previous logging and create our object and a smaller log message.
+```go title="main.go ins={5-14} del={2-3}
+case "initialize":
+    logger.Println("initialize")
+    logger.Printf("Content: %s\n", content)
+
+    var initializeRequest lsp.Initialize
+
+    if err := json.Unmarshal(content, &initializeRequest); err != nil {
+        logger.Printf("Error unmarshalling initialize request: %s\n", err)
+        return
+    }
+
+    logger.Printf("Initialize Request by client: %s, version: %s",
+        initializeRequest.Params.ClientInfo.Name,
+        initializeRequest.Params.ClientInfo.Version)
+
+    // TODO: send response to the client
+}
+```
+
+Run a quick `go build`, reopen your editor and a markdown file we should see our log:
+`[demo_lsp]2024/06/16 21:00:39 main.go:44: Initialize Request by client: Neovim, version: 0.10.0-dev`

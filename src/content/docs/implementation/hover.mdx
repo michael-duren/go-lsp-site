@@ -12,4 +12,9 @@ The server should respond with a hover object that contains the hover informatio
 Lets checkout Microsofts **[documentation on the hover method](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_hover).**
 Skip the client capabilities and the response part for now.
 We see that the request `HoverParams` extends two other types `TextDocumentPositionParams` and `WorkDoneProgressParams`.
-So we know we need to create these interfaces, 
+So we know we need to create these interfaces in order to decode the request body and actually do something with it.
+
+Let's start there, one great thing about these docs is that you can simply 
+click on the types and go to their definition just like an editor.
+
+

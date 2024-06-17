@@ -17,7 +17,7 @@ import { Card } from "@astrojs/starlight/components";
 
 ## Request/Response Pattern
 
-  Each request and response has two parts a header and content which are seperated by a `\r\n`.
+  Each request and response has two parts a header and content which are separated by a `\r\n`.
   The header simply describes the content length and the content type, content-type defaulting to `application/vscode-jsonrpc; charset=utf-8`, so for our purposes only `Content-Length` is required.
   The request content is a JSON object that contains four main fields: 
 
@@ -56,16 +56,16 @@ The response of course includes the id of the request.
   Notification messages which are similar to requests but do not require a response, they work like events.
   </li>
   <li class="list-disc">
-  Notificaton and requests whose methods start with '$/' are messages which might not be supported by all clients or servers.
+  Notification and requests whose methods start with '$/' are messages which might not be supported by all clients or servers.
   </li>
   <li class="list-disc">
-    Finally there are cancellation and progress support, which www will not be covering in this guide.
+    Finally there are cancellation and progress support, which we will not be covering in this guide.
   </li>
 </ul>
 
 ## Server Capabilities
 
-Capabilites communicate between the client and server what features are supported.
+Capabilities communicate between the client and server what features are supported.
 Both client and server capabilities are sent as part of the `initialize` request, we won't be too worried about the client 
 capabilities in this guide but the server capabilities are important.
 

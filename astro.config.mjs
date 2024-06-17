@@ -43,6 +43,10 @@ export default defineConfig({
               link: "/implementation/editor-hookup-vs-code",
             },
             {
+              label: "The Handshake",
+              link: "/implementation/the-handshake",
+            },
+            {
               label: "Implementing Hover",
               link: "/implementation/hover",
             },
