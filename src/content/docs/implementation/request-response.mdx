@@ -39,7 +39,7 @@ func CreateScanner() *bufio.Scanner {
 The `SplitMessage` function will look something like this:
 ```go
 func SplitMessage(data []byte, atEOF bool) (advance int, token []byte, err error) {
-	// look for the seperator between header and content
+	// look for the separator between header and content
 	header, content, found := bytes.Cut(data, []byte{'\r', '\n', '\r', '\n'})
 
 	if !found {
