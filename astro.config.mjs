@@ -58,19 +58,23 @@ export default defineConfig({
               label: "Hoversaurus",
               link: "/implementation/hoversaurus",
             },
+            {
+              label: "Wrapping up",
+              link: "/implementation/wrapping-up",
+            },
           ],
         },
-        {
-          label: "DAP",
-          items: [
-            { label: "Debug Adapter Protocol", link: "/dap/dap-intro" },
-            { label: "DAP Spec", link: "/dap/dap-spec" },
-          ],
-        },
-        {
-          label: "Extras",
-          items: [{ label: "Automation", link: "/extras/automation" }],
-        },
+        // {
+        //   label: "DAP",
+        //   items: [
+        //     { label: "Debug Adapter Protocol", link: "/dap/dap-intro" },
+        //     { label: "DAP Spec", link: "/dap/dap-spec" },
+        //   ],
+        // },
+        // {
+        //   label: "Extras",
+        //   items: [{ label: "Automation", link: "/extras/automation" }],
+        // },
       ],
     }),
     tailwind(),
