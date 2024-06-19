@@ -45,6 +45,8 @@ func NewInitializeResponse(id int) InitializeResponse {
 }
 ```
 
+## Seeing the textDocumentSync in action
+
 After rebuilding and restarting our server, we can now see that not only is the client aware of the `textDocumentSync` capability,
 it has sends us a new message every time an event like save, change, or open happens.
 
@@ -73,5 +75,146 @@ it has sends us a new message every time an event like save, change, or open hap
 {"method":"textDocument\/didSave","jsonrpc":"2.0","params":{"textDocument":{"uri":"file:\/\/\/Users\/michaelduren\/Code\/learning\/go-meetups\/demo-proj\/test.md"}}}
 ```
 
-So although this is very exciting, we're not actually doing anything with these messages, that is outside of the scope of this talk.
-However we are going to implement a hover feature next that will help us write every developers favorite thing documentation!
+## Storing the document state
+
+Next we need to start handling these messages and updating our internal state accordingly, if you remember when we applied `textDocumentSync` in our capabilities we set it to `1` which means that we support full text synchronization,
+so we will get the entire document each time which isn't very good from a performance perspective but in this demonstration it's fine.
+To do this we're going to create a new directory called `thesauraus` (you'll see why in a moment) and a `state.go` file.
+
+```bash
+mkdir thesauraus && touch thesauraus/state.go
+```
+
+```go title="thesauraus/state.go"
+package thesauraus
+
+type State struct {
+	// Filenames to contents
+	Documents map[string]string
+}
+
+func NewState() State {
+	return State{
+		Documents: make(map[string]string),
+	}
+}
+
+func (s *State) OpenDocument(uri, text string) {
+	s.Documents[uri] = text
+}
+
+func (s *State) UpdateDocument(uri, text string) {
+	s.Documents[uri] = text
+}
+```
+
+Here we can see a very basic in which we use a `map` with a `URI` as a key and the files contents as the value.
+Next we need to create a type to represent a `textdocument` and the types for the `textDocument/didOpen` and `textDocument/didChange` messages.
+As usual we can check out the [documentation](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_didOpen).
+Although the types are below:
+
+```bash
+touch lsp/textdocument.go lsp/textdocument_didopen.go lsp/textdocument_didchange.go
+```
+```go title="lsp/textdocument.go"
+package lsp
+
+type TextDocumenItem struct {
+	Uri        string `json:"uri"`
+	LanguageId string `json:"languageId"`
+	Text       string `json:"text"`
+	Version    int    `json:"version"`
+}
+
+type Position struct {
+	Line      int `json:"line"`
+	Character int `json:"character"`
+}
+
+type TextDocumentIdentifier struct {
+	Uri string `json:"uri"`
+}
+
+type TextDocumentPositionParams struct {
+	TextDocument TextDocumentIdentifier `json:"textDocument"`
+	Position     Position               `json:"position"`
+}
+
+type VersionedTextDocumentIdentifier struct {
+	TextDocumentIdentifier
+	Version int `json:"version"`
+}
+```
+
+```go title="lsp/textdocument_didopen.go"
+package lsp
+
+type DidOpenTextDocumentNotification struct {
+	Notification
+	Params DidOpenTextDocumentParams `json:"params"`
+}
+
+type DidOpenTextDocumentParams struct {
+	TextDocument TextDocumenItem `json:"textDocument"`
+}
+```
+
+```go title="lsp/textdocument_didchange.go"
+package lsp
+
+type TextDocumentDidChangeNotification struct {
+	Notification
+	Params DidChangeTextDocumentParams `json:"params"`
+}
+
+// since this is a notification, we don't have a response
+type DidChangeTextDocumentParams struct {
+	TextDocument   VersionedTextDocumentIdentifier  `json:"textDocument"`
+	ContentChanges []TextDocumentContentChangeEvent `json:"contentChanges"`
+}
+
+/**
+ * An event describing a change to a text document. If only a text is provided
+ * it is considered to be the full content of the document.
+ */
+type TextDocumentContentChangeEvent struct {
+	/**
+	 * The new text for the provided range.
+	 */
+	Text string `json:"text"`
+}
+```
+
+Finally it's time to update the `main` method in our switch statement and update our state during each client message.
+
+```go title="main.go" ins={2-28}
+    // after initialize method
+	case "textDocument/didOpen":
+		var request lsp.DidOpenTextDocumentNotification
+
+		if err := json.Unmarshal(content, &request); err != nil {
+			logger.Printf("textDocument/didOpen: %s\n", err)
+			return
+		}
+
+		logger.Printf("Connected to: %s", request.Params.TextDocument.Uri)
+		logger.Printf("Contents: %s", request.Params.TextDocument.Text)
+		state.OpenDocument(request.Params.TextDocument.Uri, request.Params.TextDocument.Text)
+	case "textDocument/didChange":
+		var request lsp.TextDocumentDidChangeNotification
+
+		if err := json.Unmarshal(content, &request); err != nil {
+			logger.Printf("textDocument/didChange: %s\n", err)
+			return
+		}
+
+		logger.Printf("Changed document: %s", request.Params.TextDocument.Uri)
+		logger.Printf("Changes: %s", request.Params.ContentChanges[0].Text)
+
+		for _, change := range request.Params.ContentChanges {
+			// should only be one change
+			state.UpdateDocument(request.Params.TextDocument.Uri, change.Text)
+		}
+```
+
+And with that we have a basic synchronization mechanism in place.

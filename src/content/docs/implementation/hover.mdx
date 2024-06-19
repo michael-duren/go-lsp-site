@@ -17,4 +17,60 @@ So we know we need to create these interfaces in order to decode the request bod
 Let's start there, one great thing about these docs is that you can simply 
 click on the types and go to their definition just like an editor.
 
+We'll create two new files and add the following (converted from the typescript docs to go lang)
+```bash
+touch lsp/hover.go
+```
+
+```go title="lsp/hover.go"
+package lsp
+
+type HoverRequest struct {
+	Request
+	Params HoverParams `json:"params"`
+}
+
+type HoverParams struct {
+	TextDocumentPositionParams
+}
+
+type HoverResponse struct {
+	Response
+	Result HoverResult `json:"result"`
+}
+
+type HoverResult struct {
+	Contents string `json:"contents"`
+}
+```
+
+Now to tell our client that we support the hover method we need to add it to the `ServerCapabilities` struct.
+```go title="lsp/server.go" ins={3, 18}
+type ServerCapabilities struct {
+	TextDocumentSync int  `json:"textDocumentSync"`
+	HoverProvider    bool `json:"hoverProvider"`
+}
+
+
+// ... other code...
+
+func NewInitializeResponse(id int) InitializeResponse {
+	return InitializeResponse{
+		Response: Response{
+			Id:      &id,
+			Jsonrpc: "2.0",
+		},
+		Result: InitializeResult{
+			Capabilities: ServerCapabilities{
+				TextDocumentSync: 1,
+				HoverProvider:    true,
+			}, // what we're able to do
+			ServerInfo: ServerInfo{
+				Name:    "demo_lsp", // name of lsp
+				Version: "0.0.0.0",  // version of lsp
+			},
+		},
+	}
+}
+```
 
