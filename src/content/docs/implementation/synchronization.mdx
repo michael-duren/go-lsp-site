@@ -1,0 +1,77 @@
+---
+title: Synchronization
+description: Text Documents Synchronization
+---
+
+We're moving ahead here, we have round trips working between our client and server, we've communicated
+capabilities acknowledged each others strengths and weaknesses and are now in a healthy relationship... 
+At least our server and client are.
+
+Next up, we're going to start talking about synchronization.
+How is it that when you change a document a letter on a variable for example, you all of a sudden get a red squiggly line under it?
+Well the answer is somewhat obvious, our editors are constantly communicating based on events that often we are triggering.
+To start receiving messages based on these events is actually quite simple.
+When we created `initialize.go` file, we created a empty type called `ServerCapabilities` to add capabilities to at a later point.
+Well now is time to do that so, the first capability we want to inform the client of is `textDocumentSync`.
+So in our `initialize.go` file, we're going to add the following:
+```go
+type ServerCapabilities struct {
+	TextDocumentSync int `json:"textDocumentSync"`
+}
+```
+For the value of `textDocumentSync` lets check the [documentation:](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_synchronization)
+We see that we need to tell the client what type of `textDocumentSync` we support and for 
+our purposes we're going to support `Full` changes,
+since we won't be getting into advanced diffing and patching of documents this evening.
+
+So lets update our helper function to set the appropriate value.
+```go ins={9}
+func NewInitializeResponse(id int) InitializeResponse {
+	return InitializeResponse{
+		Response: Response{
+			Id:      &id,
+			Jsonrpc: "2.0",
+		},
+		Result: InitializeResult{
+			Capabilities: ServerCapabilities{
+				TextDocumentSync: 1,
+			}, // what we're able to do
+			ServerInfo: ServerInfo{
+				Name:    "demo_lsp", // name of lsp
+				Version: "0.0.0.0",  // version of lsp
+			},
+		},
+	}
+}
+```
+
+After rebuilding and restarting our server, we can now see that not only is the client aware of the `textDocumentSync` capability,
+it has sends us a new message every time an event like save, change, or open happens.
+
+```logs
+{"method":"textDocument\/didOpen","jsonrpc":"2.0","params":{"textDocument":{"languageId":"markdown","version":0,"uri":"file:\/\/\/Users\/michaelduren\/Code\/learning\/go-meetups\/demo-proj\/test.md","text":"# This is a test file\n\nHello\nHey\n"}}}
+[demo_lsp]2024/06/19 11:32:53 main.go:31: Message received: Content-Length: 165
+
+{"method":"textDocument\/didSave","jsonrpc":"2.0","params":{"textDocument":{"uri":"file:\/\/\/Users\/michaelduren\/Code\/learning\/go-meetups\/demo-proj\/test.md"}}}
+[demo_lsp]2024/06/19 11:32:53 main.go:31: Message received: Content-Length: 249
+
+{"method":"textDocument\/didChange","jsonrpc":"2.0","params":{"textDocument":{"version":3,"uri":"file:\/\/\/Users\/michaelduren\/Code\/learning\/go-meetups\/demo-proj\/test.md"},"contentChanges":[{"text":"# This is a test file\n\nHello\n\nHey\n"}]}}
+[demo_lsp]2024/06/19 11:32:54 main.go:31: Message received: Content-Length: 165
+
+{"method":"textDocument\/didSave","jsonrpc":"2.0","params":{"textDocument":{"uri":"file:\/\/\/Users\/michaelduren\/Code\/learning\/go-meetups\/demo-proj\/test.md"}}}
+[demo_lsp]2024/06/19 11:32:55 main.go:31: Message received: Content-Length: 251
+
+{"method":"textDocument\/didChange","jsonrpc":"2.0","params":{"textDocument":{"version":5,"uri":"file:\/\/\/Users\/michaelduren\/Code\/learning\/go-meetups\/demo-proj\/test.md"},"contentChanges":[{"text":"# This is a test file\n\nHello\n\nHey\n\n"}]}}
+[demo_lsp]2024/06/19 11:32:56 main.go:31: Message received: Content-Length: 251
+
+{"method":"textDocument\/didChange","jsonrpc":"2.0","params":{"textDocument":{"version":6,"uri":"file:\/\/\/Users\/michaelduren\/Code\/learning\/go-meetups\/demo-proj\/test.md"},"contentChanges":[{"text":"# This is a test file\n\nHello\n\nHey\n\n"}]}}
+[demo_lsp]2024/06/19 11:32:56 main.go:31: Message received: Content-Length: 249
+
+{"method":"textDocument\/didChange","jsonrpc":"2.0","params":{"textDocument":{"version":7,"uri":"file:\/\/\/Users\/michaelduren\/Code\/learning\/go-meetups\/demo-proj\/test.md"},"contentChanges":[{"text":"# This is a test file\n\nHello\n\nHey\n"}]}}
+[demo_lsp]2024/06/19 11:32:56 main.go:31: Message received: Content-Length: 165
+
+{"method":"textDocument\/didSave","jsonrpc":"2.0","params":{"textDocument":{"uri":"file:\/\/\/Users\/michaelduren\/Code\/learning\/go-meetups\/demo-proj\/test.md"}}}
+```
+
+So although this is very exciting, we're not actually doing anything with these messages, that is outside of the scope of this talk.
+However we are going to implement a hover feature next that will help us write every developers favorite thing documentation!

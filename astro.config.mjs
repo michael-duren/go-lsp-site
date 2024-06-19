@@ -47,6 +47,10 @@ export default defineConfig({
               link: "/implementation/the-handshake",
             },
             {
+              label: "Synchronizing",
+              link: "/implementation/synchronization",
+            },
+            {
               label: "Implementing Hover",
               link: "/implementation/hover",
             },

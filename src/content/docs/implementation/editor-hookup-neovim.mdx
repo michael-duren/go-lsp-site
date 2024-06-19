@@ -3,17 +3,45 @@ title: Hooking up our LSP to Neovim
 description: Hooking up our LSP to the editor
 ---
 
+import { Aside } from '@astrojs/starlight/components';
+
 Its time to talk to hook up our editor!
 For this rather than use something like lsp-config, I'm just going to call `vim.lsp.start_client` directly.
+
 ```lua
-vim.lsp.start_client({
-  name = "markdown-awesome-server",
-  cmd = { "/Users/michaelduren/Code/learning/go-meetups/demo-proj/demo_lsp" },
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "markdown",
+  callback = function()
+    local bufnr = vim.api.nvim_get_current_buf()
+
+    -- Check if the LSP client is already attached to the buffer
+    if vim.b[bufnr].markdown_lsp_attached then
+      return
+    end
+
+    -- Start the LSP client
+    local client_id = vim.lsp.start({
+      name = "markdown-awesome-server",
+      cmd = { "/Users/michaelduren/Code/learning/go-meetups/demo-proj/demo_lsp" },
+    })
+
+    -- Mark the buffer as having the LSP client attached
+    if client_id then
+      vim.b[bufnr].markdown_lsp_attached = true
+    end
+  end,
 })
 ```
 
+
 We can give it any name we like, we just need to assign the absolute path of where our binary is located, and we can start the server.
 Typically we would have a `/bin/` folder nested perhaps somewhere in our home directory where we would store our binaries, but for development it's nice to have it in the project directory.
+
+<Aside>
+    Although this neovim configuration will work for development, it will create a new server instance for every markdown file we open.
+    This is because we are starting the server on the FileType event, which is triggered everytime we open a new file.
+    Once we would finish our plugin we would want to configure it for actual use.
+</Aside>
 
 
 ## Startup
