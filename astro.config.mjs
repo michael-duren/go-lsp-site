@@ -56,7 +56,7 @@ export default defineConfig({
             },
             {
               label: "Hoversaurus",
-              link: "/implementation/spell-check",
+              link: "/implementation/hoversaurus",
             },
           ],
         },

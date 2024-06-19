@@ -28,3 +28,7 @@
 
 {"jsonrpc":"2.0","method":"textDocument\/didSave","params":{"textDocument":{"uri":"file:\/\/\/Users\/michaelduren\/Code\/learning\/go-meetups\/presentation\/go-lecture-site\/README.md"}}}
 [demo_lsp]2024/06/19 11:31:02 main.go:27: In the loop
+[demo_lsp]2024/06/19 16:24:09 main.go:32: Message received: Content-Length: 188
+
+{"jsonrpc":"2.0","method":"textDocument\/didClose","params":{"textDocument":{"uri":"file:\/\/\/Users\/michaelduren\/Code\/learning\/go-meetups\/presentation\/go-lecture-site\/README.md"}}}
+[demo_lsp]2024/06/19 16:24:09 main.go:27: In the loop
