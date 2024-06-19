@@ -55,7 +55,7 @@ export default defineConfig({
               link: "/implementation/hover",
             },
             {
-              label: "Spell Check in Markdown files",
+              label: "Hoversaurus",
               link: "/implementation/spell-check",
             },
           ],
